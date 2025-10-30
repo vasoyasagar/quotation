@@ -353,23 +353,23 @@
 
                 <div class="table-row">
                     <div class="component-name">Inverter</div>
-                    <input type="number" id="inverterRate" class="input-field red" value="4636">
+                    <div class="calculated" id="inverterRate">4636</div>
                     <div class="per-kw">(Per KW)</div>
-                    <div class="calculated" id="inverterTotal">15300</div>
+                    <input type="number" id="inverterTotal" class="input-field red" value="15300">
                 </div>
 
                 <div class="table-row">
                     <div class="component-name">Wiring</div>
-                    <input type="number" id="wiringRate" class="input-field red" value="3030">
+                    <div class="calculated" id="wiringRate">3030</div>
                     <div class="per-kw">(Per KW)</div>
-                    <div class="calculated" id="wiringTotal">10000</div>
+                    <input type="number" id="wiringTotal" class="input-field red" value="10000">
                 </div>
 
                 <div class="table-row">
                     <div class="component-name">Transport</div>
-                    <input type="number" id="transportRate" class="input-field red" value="606">
+                    <div class="calculated" id="transportRate">606</div>
                     <div class="per-kw">(Per KW)</div>
-                    <div class="calculated" id="transportTotal">2000</div>
+                    <input type="number" id="transportTotal" class="input-field red" value="2000">
                 </div>
 
                 <div class="table-row">
@@ -485,9 +485,9 @@
             const sizeVoltage = parseFloat(document.getElementById('sizeVoltage').value) || 550;
             const number = parseFloat(document.getElementById('number').value) || 6;
             const panelRate = parseFloat(document.getElementById('panelRate').value) || 26100;
-            const inverterRate = parseFloat(document.getElementById('inverterRate').value) || 4636;
-            const wiringRate = parseFloat(document.getElementById('wiringRate').value) || 3030;
-            const transportRate = parseFloat(document.getElementById('transportRate').value) || 606;
+            const inverterTotal = parseFloat(document.getElementById('inverterTotal').value) || 15300;
+            const wiringTotal = parseFloat(document.getElementById('wiringTotal').value) || 10000;
+            const transportTotal = parseFloat(document.getElementById('transportTotal').value) || 2000;
             const otherRate = parseFloat(document.getElementById('otherRate').value) || 0;
             const profitRate = parseFloat(document.getElementById('profitRate').value) || 5000;
             const ppaAmount = parseFloat(document.getElementById('ppaAmount').value) || 300;
@@ -499,19 +499,21 @@
             const kw = (sizeVoltage * number) / 1000;
             document.getElementById('kw').textContent = kw.toFixed(2);
 
-            // Calculate component totals using input rates
+            // Calculate rates per KW for inverter, wiring, transport from their totals
+            const inverterRate = Math.round(inverterTotal / kw);
+            const wiringRate = Math.round(wiringTotal / kw);
+            const transportRate = Math.round(transportTotal / kw);
+
+            // Calculate component totals
             const panelTotal = Math.round(panelRate * kw);
-            const inverterTotal = Math.round(inverterRate * kw);
-            const wiringTotal = Math.round(wiringRate * kw);
-            const transportTotal = Math.round(transportRate * kw);
             const otherTotal = Math.round(otherRate * kw);
             const profitTotal = Math.round(profitRate * kw);
 
-            // Update component totals
+            // Update component values
             document.getElementById('panelTotal').textContent = panelTotal;
-            document.getElementById('inverterTotal').textContent = inverterTotal;
-            document.getElementById('wiringTotal').textContent = wiringTotal;
-            document.getElementById('transportTotal').textContent = transportTotal;
+            document.getElementById('inverterRate').textContent = inverterRate;
+            document.getElementById('wiringRate').textContent = wiringRate;
+            document.getElementById('transportRate').textContent = transportRate;
             document.getElementById('otherTotal').textContent = otherTotal;
             document.getElementById('profitTotal').textContent = profitTotal;
 
