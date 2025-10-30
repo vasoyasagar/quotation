@@ -264,7 +264,40 @@
             transform: translateY(0);
         }
 
-        /* Tablet and Desktop */
+        .pdf-btn {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: block;
+            margin: 15px auto;
+            text-transform: uppercase;
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .pdf-btn:hover {
+            background: linear-gradient(135deg, #c82333, #a71e2a);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 12px rgba(220, 53, 69, 0.4);
+        }
+
+        .pdf-btn:active {
+            transform: translateY(0);
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin: 25px 0;
+        }
+
         @media (min-width: 768px) {
             body {
                 padding: 20px;
@@ -304,11 +337,55 @@
                 grid-column: auto;
                 margin-top: 0;
             }
+
+            .button-group {
+                flex-direction: row;
+                justify-content: center;
+                gap: 20px;
+            }
+
+            .calculate-btn, .pdf-btn {
+                margin: 0;
+            }
         }
 
         @media (min-width: 1024px) {
             .container {
                 max-width: 800px;
+            }
+        }
+
+        /* Print styles for PDF */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+                border: none;
+                border-radius: 0;
+                max-width: 100%;
+            }
+            
+            .button-group {
+                display: none;
+            }
+            
+            .header {
+                background: #007bff !important;
+                -webkit-print-color-adjust: exact;
+            }
+            
+            .section-header {
+                background: #28a745 !important;
+                -webkit-print-color-adjust: exact;
+            }
+            
+            .totals-row {
+                background: #cce5ff !important;
+                -webkit-print-color-adjust: exact;
             }
         }
     </style>
@@ -461,7 +538,10 @@
             </div>
         </div>
 
-        <button class="calculate-btn" onclick="calculateAll()">Calculate Quotation</button>
+        <div class="button-group">
+            <button class="calculate-btn" onclick="calculateAll()">Calculate Quotation</button>
+            <button class="pdf-btn" onclick="downloadPDF()">Download PDF</button>
+        </div>
 
         <!-- Final Total Display -->
         <div class="final-total">
@@ -598,6 +678,38 @@
             // Initial calculation
             calculateAll();
         });
+
+        function downloadPDF() {
+            // Create a new window with only the content we want to print
+            const printWindow = window.open('', '_blank');
+            
+            // Get the current page styles
+            const styles = Array.from(document.styleSheets)
+                .map(styleSheet => {
+                    try {
+                        return Array.from(styleSheet.cssRules)
+                            .map(rule => rule.cssText)
+                            .join('\n');
+                    } catch (e) {
+                        return '';
+                    }
+                })
+                .join('\n');
+            
+            // Get the container content
+            const content = document.querySelector('.container').outerHTML;
+            
+            // Create the HTML for the new window
+            const html = '<!DOCTYPE html><html><head><title>Solar Quotation</title><meta charset="UTF-8"><style>' + 
+                styles + 
+                '</style></head><body>' + 
+                content + 
+                '<' + 'script>window.onload = function() { setTimeout(function() { window.print(); window.close(); }, 500); };<' + '/script></body></html>';
+            
+            // Write the HTML to the new window
+            printWindow.document.write(html);
+            printWindow.document.close();
+        }
     </script>
 </body>
 </html>
