@@ -198,17 +198,40 @@
             font-size: 12px;
             color: #6c757d;
             font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
 
-        .pipe-mode {
-            font-size: 10px;
-            color: #28a745;
-            font-weight: 600;
-            text-transform: uppercase;
+        .pipe-input-row {
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
-        .pipe-mode.manual {
+        .pipe-input {
+            width: 100px;
+            padding: 8px 10px;
+            border: 2px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+            text-align: right;
+            background: white;
             color: #dc3545;
+            font-weight: 600;
+            border-color: #dc3545;
+        }
+
+        .pipe-input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        .pipe-label {
+            font-size: 11px;
+            font-weight: 500;
+            color: #6c757d;
         }
 
         .final-total {
@@ -324,7 +347,7 @@
             }
 
             .additional-row {
-                grid-template-columns: 2fr 1fr 1fr 1fr;
+                grid-template-columns: 1.5fr 1fr 1.2fr 1fr;
                 gap: 15px;
             }
 
@@ -516,8 +539,14 @@
                     <div class="component-name">Pipe</div>
                     <input type="number" id="pipeCount" class="input-field red" value="7">
                     <div class="pipe-info">
-                        <span class="pipe-mode" id="pipeMode">Auto Mode</span><br>
-                        No. Panel +1: <span id="panelPlus1">7</span> * 18 Foot
+                        <div class="pipe-input-row">
+                            <input type="number" id="footPerPipe" class="pipe-input" value="18">
+                            <span class="pipe-label">Foot</span>
+                        </div>
+                        <div class="pipe-input-row">
+                            <input type="number" id="ratePerFoot" class="pipe-input" value="105">
+                            <span class="pipe-label">Rate/Foot</span>
+                        </div>
                     </div>
                     <div class="calculated pipe-total" id="pipeTotal">13230</div>
                 </div>
@@ -576,6 +605,8 @@
             const pipeCount = parseFloat(document.getElementById('pipeCount').value) || 7;
             const pgvclAmount = parseFloat(document.getElementById('pgvclAmount').value) || 0;
             const gedaFee = parseFloat(document.getElementById('gedaFee').value) || 0;
+            const footPerPipe = parseFloat(document.getElementById('footPerPipe').value) || 18;
+            const ratePerFoot = parseFloat(document.getElementById('ratePerFoot').value) || 105;
 
             // Calculate KW = C3*D3/1000
             const kw = (sizeVoltage * number) / 1000;
@@ -620,23 +651,17 @@
             // Calculate pipe total
             const panelPlus1 = number + 1;
             const pipeInput = document.getElementById('pipeCount');
-            const pipeMode = document.getElementById('pipeMode');
             let pipeTotal;
             
             // If initial load or user hasn't manually changed pipe, use auto mode
             if (isInitialLoad || !userChangedPipe) {
                 pipeInput.value = panelPlus1;
-                pipeTotal = panelPlus1 * 18 * 105;
-                pipeMode.textContent = 'Auto Mode';
-                pipeMode.className = 'pipe-mode';
+                pipeTotal = panelPlus1 * footPerPipe * ratePerFoot;
             } else {
                 // Use manually entered pipe count
-                pipeTotal = pipeCount * 18 * 105;
-                pipeMode.textContent = 'Manual Mode';
-                pipeMode.className = 'pipe-mode manual';
+                pipeTotal = pipeCount * footPerPipe * ratePerFoot;
             }
             
-            document.getElementById('panelPlus1').textContent = panelPlus1;
             document.getElementById('pipeTotal').textContent = pipeTotal;
 
             // Update PGVCL and Geda totals
@@ -659,7 +684,7 @@
 
         // Auto-calculate on input change
         document.addEventListener('DOMContentLoaded', function() {
-            const inputs = document.querySelectorAll('.input-field');
+            const inputs = document.querySelectorAll('.input-field, .pipe-input');
             inputs.forEach(input => {
                 input.addEventListener('input', function() {
                     // If pipe count is manually changed, mark it as user changed
