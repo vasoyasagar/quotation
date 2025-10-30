@@ -680,35 +680,28 @@
         });
 
         function downloadPDF() {
-            // Create a new window with only the content we want to print
-            const printWindow = window.open('', '_blank');
+            // Hide buttons before printing
+            const buttonGroup = document.querySelector('.button-group');
+            const originalDisplay = buttonGroup.style.display;
+            buttonGroup.style.display = 'none';
             
-            // Get the current page styles
-            const styles = Array.from(document.styleSheets)
-                .map(styleSheet => {
-                    try {
-                        return Array.from(styleSheet.cssRules)
-                            .map(rule => rule.cssText)
-                            .join('\n');
-                    } catch (e) {
-                        return '';
-                    }
-                })
-                .join('\n');
-            
-            // Get the container content
-            const content = document.querySelector('.container').outerHTML;
-            
-            // Create the HTML for the new window
-            const html = '<!DOCTYPE html><html><head><title>Solar Quotation</title><meta charset="UTF-8"><style>' + 
-                styles + 
-                '</style></head><body>' + 
-                content + 
-                '<' + 'script>window.onload = function() { setTimeout(function() { window.print(); window.close(); }, 500); };<' + '/script></body></html>';
-            
-            // Write the HTML to the new window
-            printWindow.document.write(html);
-            printWindow.document.close();
+            // Use a timeout to ensure the DOM updates before printing
+            setTimeout(() => {
+                try {
+                    // Use the native print functionality
+                    window.print();
+                    
+                    // Restore the buttons after printing
+                    setTimeout(() => {
+                        buttonGroup.style.display = originalDisplay;
+                    }, 500);
+                } catch (error) {
+                    console.error('Print error:', error);
+                    // Restore the buttons if there's an error
+                    buttonGroup.style.display = originalDisplay;
+                    alert('There was an error generating the PDF. Please try again.');
+                }
+            }, 300);
         }
     </script>
 </body>
