@@ -591,6 +591,64 @@
         let isInitialLoad = true;
         let userChangedPipe = false;
 
+        // Local Storage functions
+        function saveToLocalStorage() {
+            const inputs = {
+                sizeVoltage: document.getElementById('sizeVoltage').value,
+                number: document.getElementById('number').value,
+                panelRate: document.getElementById('panelRate').value,
+                inverterTotal: document.getElementById('inverterTotal').value,
+                wiringTotal: document.getElementById('wiringTotal').value,
+                transportTotal: document.getElementById('transportTotal').value,
+                otherRate: document.getElementById('otherRate').value,
+                profitRate: document.getElementById('profitRate').value,
+                pgvclAmount: document.getElementById('pgvclAmount').value,
+                ppaAmount: document.getElementById('ppaAmount').value,
+                pipeCount: document.getElementById('pipeCount').value,
+                gedaFee: document.getElementById('gedaFee').value,
+                footPerPipe: document.getElementById('footPerPipe').value,
+                ratePerFoot: document.getElementById('ratePerFoot').value,
+                userChangedPipe: userChangedPipe
+            };
+            localStorage.setItem('solarQuotationData', JSON.stringify(inputs));
+        }
+
+        function loadFromLocalStorage() {
+            const savedData = localStorage.getItem('solarQuotationData');
+            if (savedData) {
+                try {
+                    const inputs = JSON.parse(savedData);
+                    
+                    // Restore all input values
+                    if (inputs.sizeVoltage) document.getElementById('sizeVoltage').value = inputs.sizeVoltage;
+                    if (inputs.number) document.getElementById('number').value = inputs.number;
+                    if (inputs.panelRate) document.getElementById('panelRate').value = inputs.panelRate;
+                    if (inputs.inverterTotal) document.getElementById('inverterTotal').value = inputs.inverterTotal;
+                    if (inputs.wiringTotal) document.getElementById('wiringTotal').value = inputs.wiringTotal;
+                    if (inputs.transportTotal) document.getElementById('transportTotal').value = inputs.transportTotal;
+                    if (inputs.otherRate) document.getElementById('otherRate').value = inputs.otherRate;
+                    if (inputs.profitRate) document.getElementById('profitRate').value = inputs.profitRate;
+                    if (inputs.pgvclAmount) document.getElementById('pgvclAmount').value = inputs.pgvclAmount;
+                    if (inputs.ppaAmount) document.getElementById('ppaAmount').value = inputs.ppaAmount;
+                    if (inputs.pipeCount) document.getElementById('pipeCount').value = inputs.pipeCount;
+                    if (inputs.gedaFee) document.getElementById('gedaFee').value = inputs.gedaFee;
+                    if (inputs.footPerPipe) document.getElementById('footPerPipe').value = inputs.footPerPipe;
+                    if (inputs.ratePerFoot) document.getElementById('ratePerFoot').value = inputs.ratePerFoot;
+                    
+                    // Restore user pipe change state
+                    if (inputs.userChangedPipe !== undefined) {
+                        userChangedPipe = inputs.userChangedPipe;
+                    }
+                    
+                    return true;
+                } catch (error) {
+                    console.error('Error loading saved data:', error);
+                    return false;
+                }
+            }
+            return false;
+        }
+
         function calculateAll() {
             // Get input values
             const sizeVoltage = parseFloat(document.getElementById('sizeVoltage').value) || 550;
@@ -684,6 +742,9 @@
 
         // Auto-calculate on input change
         document.addEventListener('DOMContentLoaded', function() {
+            // Load saved data first
+            const dataLoaded = loadFromLocalStorage();
+            
             const inputs = document.querySelectorAll('.input-field, .pipe-input');
             inputs.forEach(input => {
                 input.addEventListener('input', function() {
@@ -692,16 +753,24 @@
                         userChangedPipe = true;
                     }
                     calculateAll();
+                    // Save to local storage after each change
+                    saveToLocalStorage();
                 });
             });
 
             // Reset to auto mode when number field changes
             document.getElementById('number').addEventListener('input', function() {
                 userChangedPipe = false;
+                saveToLocalStorage();
             });
             
-            // Initial calculation
+            // Initial calculation (after loading data or with defaults)
             calculateAll();
+            
+            // If no data was loaded, save the default values
+            if (!dataLoaded) {
+                saveToLocalStorage();
+            }
         });
 
         function downloadPDF() {
